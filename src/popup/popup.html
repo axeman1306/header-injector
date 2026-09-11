@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Header Injector</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Header Injector</h1>
+      <label class="master-toggle">
+        <input type="checkbox" id="master-enabled" />
+        Enabled
+      </label>
+    </header>
+
+    <div id="rules"></div>
+
+    <button id="add-rule" type="button">+ Add header</button>
+
+    <footer>
+      <button id="export-btn" type="button">Export JSON</button>
+      <label class="import-label">
+        Import JSON
+        <input type="file" id="import-input" accept="application/json" hidden />
+      </label>
+    </footer>
+
+    <template id="rule-template">
+      <div class="rule" data-id="">
+        <div class="rule-row">
+          <input type="checkbox" class="f-enabled" title="Enabled" />
+          <select class="f-action">
+            <option value="set">Set</option>
+            <option value="remove">Remove</option>
+          </select>
+          <input type="text" class="f-name" placeholder="Header name" />
+          <input type="text" class="f-value" placeholder="Value" />
+          <button type="button" class="remove-rule" title="Delete rule">&times;</button>
+        </div>
+        <div class="rule-row">
+          <select class="f-matchtype">
+            <option value="all">All URLs</option>
+            <option value="hostname">Hostname is</option>
+            <option value="urlContains">URL contains</option>
+            <option value="urlRegex">URL matches regex</option>
+          </select>
+          <input type="text" class="f-matchvalue" placeholder="example.com" />
+        </div>
+      </div>
+    </template>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

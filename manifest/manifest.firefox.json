@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "HTTP Header Injector",
+  "version": "0.1.0",
+  "description": "Add, edit, and remove HTTP request headers per-URL, per-hostname, or by regex.",
+  "permissions": ["storage", "declarativeNetRequest"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "scripts": ["background.js"],
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "header-injector@steve-westerhout.local",
+      "strict_min_version": "115.0"
+    }
+  }
+}
