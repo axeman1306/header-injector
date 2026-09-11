@@ -1,4 +1,4 @@
-import { dnr } from "./browser-api";
+import { getDnr } from "./browser-api";
 import type { HeaderRule, MatchType, RuleSet } from "./types";
 
 // Chrome exposes chrome.declarativeNetRequest.{RuleActionType,HeaderOperation,
@@ -68,6 +68,7 @@ function toDnrRule(rule: HeaderRule, id: number): chrome.declarativeNetRequest.R
 
 /** Returns the number of rules actually applied, for the toolbar badge count. */
 export async function syncDynamicRules(ruleSet: RuleSet): Promise<number> {
+  const dnr = getDnr();
   const existing = await dnr.getDynamicRules();
   const removeRuleIds = existing.map((r) => r.id);
 
