@@ -27,6 +27,7 @@ async function buildTarget(target: (typeof TARGETS)[number]): Promise<void> {
 
   await cp(join(SRC, "popup", "popup.html"), join(outDir, "popup", "popup.html"));
   await cp(join(SRC, "popup", "popup.css"), join(outDir, "popup", "popup.css"));
+  await cp(join(ROOT, "icons"), join(outDir, "icons"), { recursive: true });
 
   const manifest = await readFile(join(ROOT, "manifest", `manifest.${target}.json`), "utf-8");
   await writeFile(join(outDir, "manifest.json"), manifest);
