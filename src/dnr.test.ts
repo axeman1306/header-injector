@@ -109,4 +109,41 @@ describe("syncDynamicRules", () => {
 
     expect(calls[0].removeRuleIds).toEqual([1, 2]);
   });
+
+  test("target 'response' puts the operation on responseHeaders, not requestHeaders", async () => {
+    (globalThis as any).chrome.declarativeNetRequest.getDynamicRules = async () => [];
+    const calls: any[] = [];
+    (globalThis as any).chrome.declarativeNetRequest.updateDynamicRules = async (arg: any) => {
+      calls.push(arg);
+    };
+
+    const rule = newRule();
+    rule.headerName = "Access-Control-Allow-Origin";
+    rule.headerValue = "*";
+    rule.target = "response";
+
+    await syncDynamicRules({ masterEnabled: true, rules: [rule] });
+
+    const built = calls[0].addRules[0].action;
+    expect(built.requestHeaders).toBeUndefined();
+    expect(built.responseHeaders[0]).toEqual({
+      header: "Access-Control-Allow-Origin",
+      operation: "set",
+      value: "*",
+    });
+  });
+
+  test("returns the count of applied rules for the badge", async () => {
+    (globalThis as any).chrome.declarativeNetRequest.getDynamicRules = async () => [];
+    (globalThis as any).chrome.declarativeNetRequest.updateDynamicRules = async () => {};
+
+    const a = newRule();
+    a.headerName = "X-A";
+    const b = newRule();
+    b.headerName = "X-B";
+    b.enabled = false; // filtered out
+
+    const count = await syncDynamicRules({ masterEnabled: true, rules: [a, b] });
+    expect(count).toBe(1);
+  });
 });

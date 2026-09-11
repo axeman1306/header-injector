@@ -40,30 +40,34 @@ function toCondition(matchType: MatchType, matchValue: string): chrome.declarati
   }
 }
 
+function toHeaderOp(rule: HeaderRule): chrome.declarativeNetRequest.ModifyHeaderInfo {
+  return rule.action === "set"
+    ? {
+        header: rule.headerName,
+        operation: "set" as chrome.declarativeNetRequest.HeaderOperation,
+        value: rule.headerValue,
+      }
+    : {
+        header: rule.headerName,
+        operation: "remove" as chrome.declarativeNetRequest.HeaderOperation,
+      };
+}
+
 function toDnrRule(rule: HeaderRule, id: number): chrome.declarativeNetRequest.Rule {
+  const op = toHeaderOp(rule);
   return {
     id,
     priority: 1,
     action: {
       type: "modifyHeaders" as chrome.declarativeNetRequest.RuleActionType,
-      requestHeaders: [
-        rule.action === "set"
-          ? {
-              header: rule.headerName,
-              operation: "set" as chrome.declarativeNetRequest.HeaderOperation,
-              value: rule.headerValue,
-            }
-          : {
-              header: rule.headerName,
-              operation: "remove" as chrome.declarativeNetRequest.HeaderOperation,
-            },
-      ],
+      ...(rule.target === "response" ? { responseHeaders: [op] } : { requestHeaders: [op] }),
     },
     condition: toCondition(rule.matchType, rule.matchValue),
   };
 }
 
-export async function syncDynamicRules(ruleSet: RuleSet): Promise<void> {
+/** Returns the number of rules actually applied, for the toolbar badge count. */
+export async function syncDynamicRules(ruleSet: RuleSet): Promise<number> {
   const existing = await dnr.getDynamicRules();
   const removeRuleIds = existing.map((r) => r.id);
 
@@ -73,4 +77,5 @@ export async function syncDynamicRules(ruleSet: RuleSet): Promise<void> {
   const addRules = active.map((rule, i) => toDnrRule(rule, i + 1));
 
   await dnr.updateDynamicRules({ removeRuleIds, addRules });
+  return active.length;
 }

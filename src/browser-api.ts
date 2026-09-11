@@ -30,3 +30,4 @@ export const storage = {
 };
 
 export const dnr = root.declarativeNetRequest;
+export const action = root.action;

@@ -1,5 +1,5 @@
 import { loadRuleSet, saveRuleSet } from "../storage";
-import { newRule, type HeaderRule, type MatchType, type RuleSet } from "../types";
+import { newRule, normalizeRule, type HeaderRule, type HeaderTarget, type MatchType, type RuleSet } from "../types";
 
 let ruleSet: RuleSet = { masterEnabled: true, rules: [] };
 
@@ -26,6 +26,7 @@ function renderRule(rule: HeaderRule): HTMLElement {
   const action = node.querySelector<HTMLSelectElement>(".f-action")!;
   const name = node.querySelector<HTMLInputElement>(".f-name")!;
   const value = node.querySelector<HTMLInputElement>(".f-value")!;
+  const target = node.querySelector<HTMLSelectElement>(".f-target")!;
   const matchType = node.querySelector<HTMLSelectElement>(".f-matchtype")!;
   const matchValue = node.querySelector<HTMLInputElement>(".f-matchvalue")!;
   const removeBtn = node.querySelector<HTMLButtonElement>(".remove-rule")!;
@@ -34,6 +35,7 @@ function renderRule(rule: HeaderRule): HTMLElement {
   action.value = rule.action;
   name.value = rule.headerName;
   value.value = rule.headerValue;
+  target.value = rule.target;
   matchType.value = rule.matchType;
   matchValue.value = rule.matchValue;
   value.hidden = rule.action === "remove";
@@ -53,6 +55,7 @@ function renderRule(rule: HeaderRule): HTMLElement {
   });
   name.addEventListener("input", () => update({ headerName: name.value }));
   value.addEventListener("input", () => update({ headerValue: value.value }));
+  target.addEventListener("change", () => update({ target: target.value as HeaderTarget }));
   matchType.addEventListener("change", () => {
     const next = matchType.value as MatchType;
     matchValue.hidden = next === "all";
@@ -99,7 +102,7 @@ importInput.addEventListener("change", async () => {
     if (!Array.isArray(parsed.rules)) throw new Error("missing rules array");
     ruleSet = {
       masterEnabled: typeof parsed.masterEnabled === "boolean" ? parsed.masterEnabled : true,
-      rules: parsed.rules,
+      rules: parsed.rules.map(normalizeRule),
     };
     await persist();
     render();
